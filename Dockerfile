@@ -14,6 +14,7 @@ RUN cd /etc/apache2/conf-enabled; ln -s ../conf-available/dav-lock-db.conf
 RUN cd /etc/apache2/mods-enabled; ln -s ../mods-available/dav.load
 RUN cd /etc/apache2/mods-enabled; ln -s ../mods-available/dav_lock.load
 RUN cd /etc/apache2/mods-enabled; ln -s ../mods-available/dav_fs.load
+RUN cd /etc/apache2/mods-enabled; ln -s ../mods-available/headers.load
 
 # create folders needed for dav root and lockdb
 RUN mkdir -p /dav/db
