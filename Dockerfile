@@ -1,22 +1,32 @@
-FROM centos:latest
+FROM richardjkendall/ubuntu-pam-dynamo:latest
 
-RUN yum update -y
+# install apache2 and mod_authnz_pam
+RUN apt-get update -y
+RUN apt-get install -y apache2 libapache2-mod-authnz-pam
 
-# install apache httpd
-RUN yum install -y httpd gettext
+# install pam config
+COPY config/aws /etc/pam.d/aws
 
-# copy in config
-RUN mkdir -p /conf
-ADD config/dav.conf /etc/httpd/conf.d/dav.conf
+# install apache config
+COPY config/000-default.conf /etc/apache2/sites-available/000-default.conf
+COPY config/dav-lock-db.conf /etc/apache2/conf-available
+RUN cd /etc/apache2/conf-enabled; ln -s ../conf-available/dav-lock-db.conf
+RUN cd /etc/apache2/mods-enabled; ln -s ../mods-available/dav.load
+RUN cd /etc/apache2/mods-enabled; ln -s ../mods-available/dav_lock.load
+RUN cd /etc/apache2/mods-enabled; ln -s ../mods-available/dav_fs.load
 
-# create folders for dav root and lockdb
-RUN mkdir -p /dav/{db,root}
-RUN chown apache:apache /dav/db
+# create folders needed for dav root and lockdb
+RUN mkdir -p /dav/db
+RUN mkdir -p /dav/root
+RUN chown www-data:www-data /dav/root
+RUN chown www-data:www-data /dav/db
 RUN chmod 700 /dav/db
 
-# add statup script
-ADD run-httpd.sh /run-httpd.sh
-RUN chmod -v +x /run-httpd.sh
+# install docker-entrypoint (which sets up pam config with deployment specific variables)
+#TBC
 
-# run httpd
-CMD [ "/run-httpd.sh" ]
+# expose apache2 port
+EXPOSE 80
+
+# run httpd in the foreground
+CMD /usr/sbin/apache2ctl -D FOREGROUND
