@@ -5,7 +5,7 @@ RUN apt-get update -y
 RUN apt-get install -y apache2 libapache2-mod-authnz-pam
 
 # install pam config
-COPY config/aws /etc/pam.d/aws
+COPY config/aws /aws.pam
 
 # install apache config
 COPY config/000-default.conf /etc/apache2/sites-available/000-default.conf
@@ -23,7 +23,9 @@ RUN chown www-data:www-data /dav/db
 RUN chmod 700 /dav/db
 
 # install docker-entrypoint (which sets up pam config with deployment specific variables)
-#TBC
+RUN apt-get install -y gettext-base
+COPY docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 # expose apache2 port
 EXPOSE 80
