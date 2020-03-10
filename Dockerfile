@@ -22,6 +22,7 @@ RUN mkdir -p /dav/root
 RUN chown www-data:www-data /dav/root
 RUN chown www-data:www-data /dav/db
 RUN chmod 700 /dav/db
+RUN chmod 700 /dav/root
 
 # install docker-entrypoint (which sets up pam config with deployment specific variables)
 RUN apt-get install -y gettext-base
